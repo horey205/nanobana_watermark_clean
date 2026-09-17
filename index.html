@@ -729,9 +729,9 @@
               <span style="font-size:0.72rem; color:#a5b4fc; font-weight:600;">Deep Clean</span>
             </div>
             <select class="select-input" id="synthIdSelect" style="border-color: rgba(139, 92, 246, 0.4);">
-              <option value="none">비활성화 (기본 로고만 제거)</option>
-              <option value="gentle">활성화: 미세 주파수 교란 (화질 무손실 + 메타데이터 삭제)</option>
+              <option value="gentle" selected>기본 활성화: 미세 주파수 교란 (화질 무손실 + 메타데이터 삭제)</option>
               <option value="strong">강력: 적응형 노이즈 디스럽트 (AI 추적기 완벽 교란)</option>
+              <option value="none">비활성화 (스파클 로고만 지우기)</option>
             </select>
           </div>
         </div>
@@ -1008,15 +1008,18 @@
       imgDimensionText.textContent = `${item.width} × ${item.height}px`;
 
       const res = item.result;
+      const synthMode = synthIdSelect ? synthIdSelect.value : 'gentle';
+      const synthText = synthMode !== 'none' ? ' · SynthID 딥클린 적용' : '';
+
       if (res && res.status === 'processed') {
         detectStatusPill.className = 'status-pill status-success';
-        detectStatusText.textContent = '워터마크 감지 및 복원 완료';
+        detectStatusText.textContent = `워터마크 복원 완료${synthText}`;
         profileText.textContent = `프로필: ${res.variant || 'V2'} (${res.size || 'auto'})`;
         const confPercent = Math.round((res.confidence || 1) * 100);
         confidenceText.textContent = `신뢰도: ${confPercent}%`;
       } else {
         detectStatusPill.className = 'status-pill status-warning';
-        detectStatusText.textContent = '워터마크 미감지 (건너뜀)';
+        detectStatusText.textContent = synthMode !== 'none' ? '워터마크 미감지 (SynthID 딥클린만 적용)' : '워터마크 미감지 (건너뜀)';
         profileText.textContent = '프로필: 없음';
         confidenceText.textContent = '신뢰도: 0%';
       }
