@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>제미나이 워터마크 지우개 - AI Imagen Sparkle Watermark Cleaner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f17;
+      --bg-secondary: #111827;
+      --bg-card: rgba(19, 26, 42, 0.75);
+      --bg-card-hover: rgba(28, 38, 62, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.5);
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+      --accent-glow: rgba(139, 92, 246, 0.25);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-xl: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 0 35px -5px rgba(124, 58, 237, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(217, 70, 239, 0.10) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(17, 24, 39, 0.8) 0%, transparent 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 32px 24px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-bottom: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background-color: #34d399;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #34d399;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Drop Zone */
+    .dropzone {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-lg);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: #8b5cf6;
+      background: var(--bg-card-hover);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-2px);
+    }
+
+    .dropzone-icon-wrap {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(217, 70, 239, 0.2));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .dropzone-icon-wrap svg {
+      width: 34px;
+      height: 34px;
+      stroke: #c4b5fd;
+    }
+
+    .dropzone-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .dropzone-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .dropzone-tags {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      color: var(--text-muted);
+    }
+
+    .kbd {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: inherit;
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    /* Main Workspace (Viewer & Controls) */
+    .workspace {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-xl);
+    }
+
+    /* Comparison Stage */
+    .compare-container {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: repeating-conic-gradient(#161e2e 0% 25%, #101623 0% 50%) 50% / 20px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .preview-canvas {
+      position: absolute;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    #processedCanvas {
+      z-index: 1;
+    }
+
+    #originalCanvasWrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 2;
+      border-right: 2px solid #ffffff;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.7);
+    }
+
+    #originalCanvas {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      max-width: none;
+      max-height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    /* Slider Handle */
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 40px;
+      margin-left: -20px;
+      z-index: 10;
+      cursor: ew-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .handle-circle {
+      width: 36px;
+      height: 36px;
+      background: #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(139, 92, 246, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1f2937;
+      font-size: 14px;
+      font-weight: bold;
+      transition: transform 0.1s;
+    }
+
+    .slider-handle:hover .handle-circle, .slider-handle:active .handle-circle {
+      transform: scale(1.15);
+      background: #c4b5fd;
+    }
+
+    /* Labels on Compare */
+    .label-badge {
+      position: absolute;
+      top: 16px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .label-before {
+      left: 16px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(6px);
+    }
+
+    .label-after {
+      right: 16px;
+      background: rgba(139, 92, 246, 0.85);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(6px);
+    }
+
+    /* Status Bar & Info */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .meta-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .meta-chip {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 9999px;
+    }
+
+    .status-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* Action Buttons */
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      outline: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Options Panel */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .opt-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .opt-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .select-input, .range-input {
+      background: #0f1523;
+      color: #f3f4f6;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      outline: none;
+      width: 100%;
+    }
+
+    .select-input:focus {
+      border-color: #8b5cf6;
+    }
+
+    /* Batch Queue */
+    .batch-section {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .batch-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .batch-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .batch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .batch-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .batch-item:hover, .batch-item.active {
+      border-color: #8b5cf6;
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .batch-thumb {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #000;
+    }
+
+    .batch-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #d1d5db;
+    }
+
+    /* Explanation Footer */
+    .info-footer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .info-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+
+    .info-box h3 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #c4b5fd;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Modal / Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      background: #1e1b4b;
+      border: 1px solid #6366f1;
+      color: #ffffff;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: none;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Hidden file input */
+    #fileInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">
+      <span class="badge-dot"></span>
+      100% 로컬 브라우저 처리 (서버 전송 없음)
+    </div>
+    <h1>제미나이 스파클 워터마크 지우개</h1>
+    <p class="subtitle">
+      AI 인페인팅의 뭉개짐 없이, <strong>역알파 블렌딩(Inverse Alpha Blending)</strong> 수학 연산으로 구글 제미나이(Gemini/Imagen) 스파클(✦) 로고를 100% 원본 픽셀로 완벽 복원합니다.
+    </p>
+  </header>
+
+  <div class="container">
+    <!-- Drop zone -->
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-icon-wrap">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+        </svg>
+      </div>
+      <div class="dropzone-title">제미나이 생성 이미지를 이곳에 드래그하세요</div>
+      <div class="dropzone-desc">클릭하여 파일 선택 또는 어디서든 바로 <span class="kbd">Ctrl + V</span> 붙여넣기</div>
+      <div class="dropzone-tags">
+        <span class="tag">PNG 원본 권장</span>
+        <span class="tag">JPG / WebP 지원</span>
+        <span class="tag">단일 및 다중(일괄) 선택 가능</span>
+        <span class="tag">고해상도 4K 지원</span>
+      </div>
+      <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" multiple>
+    </div>
+
+    <!-- Batch Section (Multiple Images) -->
+    <div class="batch-section card" id="batchSection">
+      <div class="batch-header">
+        <span class="batch-title">업로드 목록 (<span id="batchCount">0</span>개)</span>
+        <div class="action-group">
+          <button class="btn btn-secondary" id="btnClearBatch" style="padding:6px 12px; font-size:0.8rem;">목록 비우기</button>
+          <button class="btn btn-primary" id="btnDownloadAll" style="padding:6px 14px; font-size:0.8rem;">전체 일괄 다운로드 (ZIP)</button>
+        </div>
+      </div>
+      <div class="batch-grid" id="batchGrid"></div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="workspace" id="workspace">
+      <div class="card">
+        <!-- Interactive Compare Stage -->
+        <div class="compare-container" id="compareContainer">
+          <span class="label-badge label-before">제거 전 (원본)</span>
+          <span class="label-badge label-after">제거 후 (복원)</span>
+
+          <!-- Restored Result (Back) -->
+          <canvas id="processedCanvas" class="preview-canvas"></canvas>
+
+          <!-- Original Preview (Front, clipped by width) -->
+          <div id="originalCanvasWrapper">
+            <canvas id="originalCanvas"></canvas>
+          </div>
+
+          <!-- Slider divider -->
+          <div class="slider-handle" id="sliderHandle">
+            <div class="handle-circle">↔</div>
+          </div>
+        </div>
+
+        <!-- Status & Meta Bar -->
+        <div class="status-bar">
+          <div class="meta-info">
+            <span class="status-pill status-success" id="detectStatusPill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span id="detectStatusText">워터마크 감지 및 복원 완료</span>
+            </span>
+            <span class="meta-chip" id="imgDimensionText">1024 × 1024</span>
+            <span class="meta-chip" id="profileText">프로필: V2 (96px)</span>
+            <span class="meta-chip" id="confidenceText">신뢰도: 99.4%</span>
+          </div>
+
+          <div class="action-group">
+            <button class="btn btn-secondary" id="btnToggleSlider">비교 슬라이더 끄기/켜기</button>
+            <div style="display: flex; align-items: center; background: #0f1523; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 2px 8px;">
+              <input type="text" id="customFileNameInput" style="background: transparent; border: none; color: #fff; font-size: 0.88rem; outline: none; padding: 6px 4px; width: 160px; font-family: inherit;" placeholder="저장할 파일명">
+              <span style="color: var(--text-dim); font-size: 0.85rem; padding-right: 4px;">.png</span>
+            </div>
+            <button class="btn btn-primary" id="btnSaveAs">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              다른 이름으로 저장...
+            </button>
+            <button class="btn btn-secondary" id="btnDownloadCurrent" title="기본 다운로드 폴더로 바로 저장">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              빠른 저장
+            </button>
+          </div>
+        </div>
+
+        <!-- Advanced Options Accordion/Grid -->
+        <div class="options-grid">
+          <div class="opt-card">
+            <div class="opt-title">
+              <span>알고리즘 프로필</span>
+              <span style="font-size:0.75rem; color:var(--text-dim);">자동 감지 기본</span>
+            </div>
+            <select class="select-input" id="variantSelect">
+              <option value="auto">자동 감지 (V2 최신 + V1 레거시)</option>
+              <option value="V2">Gemini 3.5+ (최신 V2)</option>
+              <option value="V1">Gemini 이전 버전 (V1)</option>
+            </select>
+          </div>
+
+          <div class="opt-card">
+            <div class="opt-title">
+              <span>강제 적용 (Force Removal)</span>
+              <span style="font-size:0.75rem; color:var(--text-dim);">배경이 밝거나 특수할 때</span>
+            </div>
+            <select class="select-input" id="forceSelect">
+              <option value="false">신뢰도 기반 감지 (권장)</option>
+              <option value="true">감지 무시하고 강제 제거 (Force)</option>
+            </select>
+          </div>
+
+          <div class="opt-card">
+            <div class="opt-title">
+              <span>로고 크기 클래스</span>
+              <span style="font-size:0.75rem; color:var(--text-dim);">해상도 기반 결정</span>
+            </div>
+            <select class="select-input" id="sizeSelect">
+              <option value="auto">해상도에 맞춰 자동 선택</option>
+              <option value="large">대형 (Large / 96px)</option>
+              <option value="small">소형 (Small / 48px or 36px)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanatory Cards -->
+    <div class="info-footer">
+      <div class="info-box">
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          수학적 역알파 블렌딩 원리
+        </h3>
+        <p>
+          제미나이 스파클은 <code>C_blend = (1 - α)·C_orig + α·White</code> 공식으로 합성됩니다. 이 도구는 사전에 정밀 캘리브레이션된 투명도 맵(α)을 통해 수식을 역으로 풀어 <code>C_orig = (C_blend - α·255) / (1 - α)</code>로 완벽 복원합니다.
+        </p>
+      </div>
+
+      <div class="info-box">
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          완벽한 개인정보 보호
+        </h3>
+        <p>
+          모든 픽셀 계산은 사용자 PC의 브라우저 HTML5 Canvas 메모리 내에서만 직접 수행됩니다. 네트워크를 통해 외부 서버로 이미지를 1바이트도 전송하지 않으므로 보안상 100% 안전합니다.
+        </p>
+      </div>
+
+      <div class="info-box">
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+          최상의 복원 팁
+        </h3>
+        <p>
+          JPG 압축 시 발생하는 미세 색상 왜곡(DCT 노이즈)이 없는 <strong>PNG 원본 파일</strong>을 넣으셨을 때 오차 0에 가까운 깨끗한 결과가 나옵니다. 크롭이나 리사이징 전 원본을 넣어주세요.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast">복원된 이미지를 다운로드했습니다!</div>
+
+  <!-- JSZip for multi-download support -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+  <!-- Core Processing Logic (ESM Module using gemini-watermark) -->
+  <script type="module">
+    import * as GWM from './gemini-watermark.js';
+
+    // State
+    const state = {
+      items: [], // { id, file, name, originalCanvas, processedCanvas, info, result }
+      currentIndex: -1,
+      sliderActive: true,
+      sliderPos: 0.5,
+      isDraggingSlider: false
+    };
+
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const workspace = document.getElementById('workspace');
+    const compareContainer = document.getElementById('compareContainer');
+    const originalWrapper = document.getElementById('originalCanvasWrapper');
+    const originalCanvas = document.getElementById('originalCanvas');
+    const processedCanvas = document.getElementById('processedCanvas');
+    const sliderHandle = document.getElementById('sliderHandle');
+    const detectStatusPill = document.getElementById('detectStatusPill');
+    const detectStatusText = document.getElementById('detectStatusText');
+    const imgDimensionText = document.getElementById('imgDimensionText');
+    const profileText = document.getElementById('profileText');
+    const confidenceText = document.getElementById('confidenceText');
+    const btnDownloadCurrent = document.getElementById('btnDownloadCurrent');
+    const btnSaveAs = document.getElementById('btnSaveAs');
+    const customFileNameInput = document.getElementById('customFileNameInput');
+    const btnToggleSlider = document.getElementById('btnToggleSlider');
+    const variantSelect = document.getElementById('variantSelect');
+    const forceSelect = document.getElementById('forceSelect');
+    const sizeSelect = document.getElementById('sizeSelect');
+    const batchSection = document.getElementById('batchSection');
+    const batchGrid = document.getElementById('batchGrid');
+    const batchCount = document.getElementById('batchCount');
+    const btnClearBatch = document.getElementById('btnClearBatch');
+    const btnDownloadAll = document.getElementById('btnDownloadAll');
+    const toast = document.getElementById('toast');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2500);
+    }
+
+    // Drag & Drop
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(Array.from(e.dataTransfer.files));
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleFiles(Array.from(e.target.files));
+        fileInput.value = '';
+      }
+    });
+
+    // Paste event (Ctrl+V)
+    window.addEventListener('paste', (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      const files = [];
+      for (const item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          files.push(file);
+        }
+      }
+      if (files.length > 0) {
+        handleFiles(files);
+      }
+    });
+
+    async function handleFiles(fileList) {
+      const validFiles = fileList.filter(f => f.type.startsWith('image/'));
+      if (validFiles.length === 0) return;
+
+      for (const file of validFiles) {
+        await addImageFile(file);
+      }
+
+      if (state.items.length > 1) {
+        batchSection.style.display = 'flex';
+      }
+      renderBatchGrid();
+      if (state.currentIndex === -1 || state.items.length === 1) {
+        selectItem(state.items.length - 1);
+      }
+    }
+
+    async function addImageFile(file) {
+      const id = Math.random().toString(36).substring(2, 9);
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.src = url;
+      });
+
+      const origCanvas = document.createElement('canvas');
+      origCanvas.width = img.naturalWidth;
+      origCanvas.height = img.naturalHeight;
+      const ctx = origCanvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+
+      const item = {
+        id,
+        file,
+        name: file.name || `image_${Date.now()}.png`,
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        origCanvas,
+        procCanvas: document.createElement('canvas'),
+        result: null
+      };
+
+      processItem(item);
+      state.items.push(item);
+    }
+
+    function processItem(item) {
+      const w = item.width;
+      const h = item.height;
+      item.procCanvas.width = w;
+      item.procCanvas.height = h;
+
+      const pCtx = item.procCanvas.getContext('2d', { willReadFrequently: true });
+      pCtx.drawImage(item.origCanvas, 0, 0);
+
+      const imgData = pCtx.getImageData(0, 0, w, h);
+      const imageBuffer = {
+        data: imgData.data,
+        width: w,
+        height: h,
+        channels: 4
+      };
+
+      // Options
+      const variantVal = variantSelect.value === 'auto' ? undefined : variantSelect.value;
+      const sizeVal = sizeSelect.value === 'auto' ? undefined : sizeSelect.value;
+      const forceVal = forceSelect.value === 'true';
+
+      const options = {
+        mode: 'remove',
+        force: forceVal
+      };
+      if (variantVal) options.variant = variantVal;
+      if (sizeVal) options.size = sizeVal;
+
+      try {
+        const result = GWM.processImage(imageBuffer, options);
+        pCtx.putImageData(imgData, 0, 0);
+        item.result = result;
+      } catch (err) {
+        console.error("Processing error:", err);
+      }
+    }
+
+    function selectItem(index) {
+      if (index < 0 || index >= state.items.length) return;
+      state.currentIndex = index;
+      const item = state.items[index];
+
+      workspace.style.display = 'flex';
+
+      // Update Compare Stage Canvas
+      processedCanvas.width = item.width;
+      processedCanvas.height = item.height;
+      const pCtx = processedCanvas.getContext('2d');
+      pCtx.drawImage(item.procCanvas, 0, 0);
+
+      originalCanvas.width = item.width;
+      originalCanvas.height = item.height;
+      const oCtx = originalCanvas.getContext('2d');
+      oCtx.drawImage(item.origCanvas, 0, 0);
+
+      // Meta updates
+      imgDimensionText.textContent = `${item.width} × ${item.height}px`;
+
+      const res = item.result;
+      if (res && res.status === 'processed') {
+        detectStatusPill.className = 'status-pill status-success';
+        detectStatusText.textContent = '워터마크 감지 및 복원 완료';
+        profileText.textContent = `프로필: ${res.variant || 'V2'} (${res.size || 'auto'})`;
+        const confPercent = Math.round((res.confidence || 1) * 100);
+        confidenceText.textContent = `신뢰도: ${confPercent}%`;
+      } else {
+        detectStatusPill.className = 'status-pill status-warning';
+        detectStatusText.textContent = '워터마크 미감지 (건너뜀)';
+        profileText.textContent = '프로필: 없음';
+        confidenceText.textContent = '신뢰도: 0%';
+      }
+
+      updateLayout();
+      updateBatchActiveState();
+
+      // Update filename input
+      const baseName = item.name.replace(/\.[^/.]+$/, "");
+      customFileNameInput.value = `${baseName}_cleaned`;
+    }
+
+    function updateBatchActiveState() {
+      const nodes = batchGrid.children;
+      for (let i = 0; i < nodes.length; i++) {
+        if (i === state.currentIndex) {
+          nodes[i].classList.add('active');
+        } else {
+          nodes[i].classList.remove('active');
+        }
+      }
+    }
+
+    function renderBatchGrid() {
+      batchCount.textContent = state.items.length;
+      batchGrid.innerHTML = '';
+      state.items.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = `batch-item ${idx === state.currentIndex ? 'active' : ''}`;
+        div.onclick = () => selectItem(idx);
+
+        const thumb = document.createElement('img');
+        thumb.className = 'batch-thumb';
+        thumb.src = item.procCanvas.toDataURL('image/jpeg', 0.8);
+
+        const name = document.createElement('div');
+        name.className = 'batch-name';
+        name.textContent = item.name;
+
+        div.appendChild(thumb);
+        div.appendChild(name);
+        batchGrid.appendChild(div);
+      });
+    }
+
+    // Comparison slider logic
+    function updateLayout() {
+      if (!state.items[state.currentIndex]) return;
+      const rect = compareContainer.getBoundingClientRect();
+      const containerW = rect.width;
+      const containerH = rect.height;
+
+      const item = state.items[state.currentIndex];
+      const imgAspect = item.width / item.height;
+      const containerAspect = containerW / containerH;
+
+      let renderW, renderH, renderLeft, renderTop;
+      if (imgAspect > containerAspect) {
+        renderW = containerW;
+        renderH = containerW / imgAspect;
+        renderLeft = 0;
+        renderTop = (containerH - renderH) / 2;
+      } else {
+        renderH = containerH;
+        renderW = containerH * imgAspect;
+        renderLeft = (containerW - renderW) / 2;
+        renderTop = 0;
+      }
+
+      // Sync original Canvas display inside clipped wrapper
+      originalCanvas.style.width = `${renderW}px`;
+      originalCanvas.style.height = `${renderH}px`;
+      originalCanvas.style.left = `${renderLeft}px`;
+      originalCanvas.style.top = `${renderTop}px`;
+
+      processedCanvas.style.width = `${renderW}px`;
+      processedCanvas.style.height = `${renderH}px`;
+      processedCanvas.style.left = `${renderLeft}px`;
+      processedCanvas.style.top = `${renderTop}px`;
+
+      applySliderPos();
+    }
+
+    function applySliderPos() {
+      if (!state.sliderActive) {
+        originalWrapper.style.display = 'none';
+        sliderHandle.style.display = 'none';
+        return;
+      }
+      originalWrapper.style.display = 'block';
+      sliderHandle.style.display = 'flex';
+
+      const pct = Math.max(0, Math.min(1, state.sliderPos));
+      const posPct = pct * 100;
+      originalWrapper.style.width = `${posPct}%`;
+      sliderHandle.style.left = `${posPct}%`;
+    }
+
+    // Slider dragging
+    compareContainer.addEventListener('mousedown', (e) => {
+      if (!state.sliderActive) return;
+      state.isDraggingSlider = true;
+      moveSlider(e.clientX);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.isDraggingSlider) return;
+      moveSlider(e.clientX);
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.isDraggingSlider = false;
+    });
+
+    // Touch events for mobile/tablet
+    compareContainer.addEventListener('touchstart', (e) => {
+      if (!state.sliderActive) return;
+      state.isDraggingSlider = true;
+      moveSlider(e.touches[0].clientX);
+    });
+    window.addEventListener('touchmove', (e) => {
+      if (!state.isDraggingSlider) return;
+      moveSlider(e.touches[0].clientX);
+    });
+    window.addEventListener('touchend', () => {
+      state.isDraggingSlider = false;
+    });
+
+    function moveSlider(clientX) {
+      const rect = compareContainer.getBoundingClientRect();
+      const x = clientX - rect.left;
+      state.sliderPos = Math.max(0, Math.min(1, x / rect.width));
+      applySliderPos();
+    }
+
+    window.addEventListener('resize', updateLayout);
+
+    // Controls
+    btnToggleSlider.addEventListener('click', () => {
+      state.sliderActive = !state.sliderActive;
+      btnToggleSlider.textContent = state.sliderActive ? '비교 슬라이더 끄기' : '비교 슬라이더 켜기';
+      applySliderPos();
+    });
+
+    // Re-process on option change
+    function reprocessCurrent() {
+      if (state.currentIndex === -1) return;
+      const item = state.items[state.currentIndex];
+      processItem(item);
+      selectItem(state.currentIndex);
+      renderBatchGrid();
+      showToast('설정을 적용하여 다시 복원했습니다.');
+    }
+
+    variantSelect.addEventListener('change', reprocessCurrent);
+    forceSelect.addEventListener('change', reprocessCurrent);
+    sizeSelect.addEventListener('change', reprocessCurrent);
+
+    function getTargetFileName(extension = '.png') {
+      let name = (customFileNameInput.value || '').trim();
+      if (!name) {
+        if (state.currentIndex !== -1) {
+          name = state.items[state.currentIndex].name.replace(/\.[^/.]+$/, "") + '_cleaned';
+        } else {
+          name = `gemini_cleaned_${Date.now()}`;
+        }
+      }
+      if (name.toLowerCase().endsWith('.png')) {
+        name = name.slice(0, -4);
+      }
+      return name + extension;
+    }
+
+    // 다른 이름으로 저장... (File System Access API 지원, 미지원 브라우저는 커스텀 이름 다운로드)
+    btnSaveAs.addEventListener('click', async () => {
+      if (state.currentIndex === -1) return;
+      const item = state.items[state.currentIndex];
+      const suggestedName = getTargetFileName('.png');
+
+      item.procCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+
+        // 브라우저의 "다른 이름으로 저장" 대화상자 호출
+        if ('showSaveFilePicker' in window) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: suggestedName,
+              types: [{
+                description: 'PNG Image',
+                accept: { 'image/png': ['.png'] }
+              }]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+            showToast('성공적으로 다른 이름으로 저장되었습니다!');
+            return;
+          } catch (err) {
+            if (err.name === 'AbortError') {
+              // 사용자가 저장을 취소한 경우
+              return;
+            }
+            console.warn('showSaveFilePicker failed, falling back to download:', err);
+          }
+        }
+
+        // 대화상자 미지원 또는 오류 시 다운로드 링크 트리거
+        const link = document.createElement('a');
+        link.download = suggestedName;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        showToast('복원 이미지가 다운로드되었습니다!');
+      }, 'image/png');
+    });
+
+    // 빠른 저장 (기본 다운로드 경로로 즉시 저장)
+    btnDownloadCurrent.addEventListener('click', () => {
+      if (state.currentIndex === -1) return;
+      const item = state.items[state.currentIndex];
+      const fileName = getTargetFileName('.png');
+
+      item.procCanvas.toBlob((blob) => {
+        if (!blob) return;
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        showToast(`'${fileName}' 저장 완료!`);
+      }, 'image/png');
+    });
+
+    // Clear Batch
+    btnClearBatch.addEventListener('click', () => {
+      state.items = [];
+      state.currentIndex = -1;
+      batchSection.style.display = 'none';
+      workspace.style.display = 'none';
+      batchGrid.innerHTML = '';
+    });
+
+    // Download All ZIP
+    btnDownloadAll.addEventListener('click', async () => {
+      if (state.items.length === 0) return;
+      const zip = new JSZip();
+
+      for (const item of state.items) {
+        const baseName = item.name.replace(/\.[^/.]+$/, "");
+        const dataUrl = item.procCanvas.toDataURL('image/png');
+        const base64 = dataUrl.split(',')[1];
+        zip.file(`${baseName}_cleaned.png`, base64, { base64: true });
+      }
+
+      showToast('전체 이미지를 ZIP 파일로 압축 중...');
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `gemini_cleaned_images_${Date.now()}.zip`;
+      link.click();
+      showToast('일괄 다운로드 완료!');
+    });
+  </script>
+</body>
+</html>
